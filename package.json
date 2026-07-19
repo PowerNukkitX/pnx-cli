@@ -1,6 +1,6 @@
 {
   "name": "@powernukkitx/cli",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "PowerNukkitX CLI — Manage your Minecraft Bedrock servers with style",
   "keywords": [
     "powernukkitx",
@@ -22,12 +22,12 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/PowerNukkitX/cli.git"
+    "url": "git+https://github.com/PowerNukkitX/pnx-cli.git"
   },
   "bugs": {
-    "url": "https://github.com/PowerNukkitX/cli/issues"
+    "url": "https://github.com/PowerNukkitX/pnx-cli/issues"
   },
-  "homepage": "https://github.com/PowerNukkitX/cli#readme",
+  "homepage": "https://github.com/PowerNukkitX/pnx-cli#readme",
   "engines": {
     "node": ">=20.12.0"
   },
