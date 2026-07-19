@@ -1,0 +1,14 @@
+node_modules/
+logs
+*.log
+npm-debug.log*
+.DS_Store
+.env
+.env.*
+coverage/
+*.tsbuildinfo
+.idea/
+.vscode/
+sea-prep.blob
+pnx
+pnx.exe

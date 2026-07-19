@@ -1,0 +1,44 @@
+{
+  "name": "@powernukkitx/cli",
+  "version": "1.0.0",
+  "description": "PowerNukkitX CLI — Manage your Minecraft Bedrock servers with style",
+  "keywords": [
+    "powernukkitx",
+    "pnx",
+    "minecraft",
+    "bedrock",
+    "server",
+    "cli"
+  ],
+  "license": "MIT",
+  "author": "AzaleeX",
+  "type": "module",
+  "main": "dist/cli.js",
+  "bin": {
+    "pnx": "dist/cli.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/PowerNukkitX/cli.git"
+  },
+  "bugs": {
+    "url": "https://github.com/PowerNukkitX/cli/issues"
+  },
+  "homepage": "https://github.com/PowerNukkitX/cli#readme",
+  "engines": {
+    "node": ">=20.12.0"
+  },
+  "scripts": {
+    "start": "node dist/cli.js",
+    "check": "find dist -name '*.js' -print0 | xargs -0 -n1 node --check",
+    "smoke": "node dist/cli.js --help"
+  },
+  "dependencies": {
+    "@clack/prompts": "^1.7.0",
+    "chalk": "^5.6.2",
+    "citty": "^0.2.2"
+  }
+}
