@@ -1,14 +1,35 @@
+# dependencies
 node_modules/
-logs
+
+# build output (regenerated on every build, vendored into the app at package time)
+dist/
+release/
+
+# runtime / logs
+logs/
 *.log
 npm-debug.log*
-.DS_Store
+pnx
+pnx.exe
+sea-prep.blob
+
+# environments & coverage
 .env
 .env.*
 coverage/
 *.tsbuildinfo
+
+# editors
 .idea/
 .vscode/
-sea-prep.blob
-pnx
-pnx.exe
+.DS_Store
+
+# electron-builder unpacked payloads
+packages/app/release/linux-unpacked/
+packages/app/release/mac/
+
+# local scratch: test server, packed snapshots, UI backups
+packages/cli/pnx-server/
+_backup-*/
+_backup-*.tgz
+packages/app/_app3.*

@@ -8,12 +8,13 @@ on:
 
 jobs:
   validate:
-    name: Validate (Node ${{ matrix.node }})
-    runs-on: ubuntu-latest
+    name: Validate CLI (Node ${{ matrix.node }})
+    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         node: ['20', '22']
+        os: [ubuntu-latest, windows-latest]
     steps:
       - uses: actions/checkout@v4
 
@@ -25,8 +26,17 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Syntax check all sources
-        run: find dist -name '*.js' -print0 | xargs -0 -n1 node --check
+      - name: Typecheck
+        run: npm run typecheck --workspace packages/cli
+
+      - name: Build
+        run: npm run build --workspace packages/cli
 
       - name: Smoke test the CLI
-        run: node dist/cli.js --help
+        run: npm run smoke --workspace packages/cli
+
+      - name: Smoke test the launcher
+        run: npm run smoke:launcher --workspace packages/cli
+
+      - name: JSON mode answers as one document
+        run: node packages/cli/dist/bin/pnx.js --json info

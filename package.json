@@ -1,44 +1,24 @@
 {
-  "name": "@powernukkitx/cli",
-  "version": "1.0.2",
-  "description": "PowerNukkitX CLI — Manage your Minecraft Bedrock servers with style",
-  "keywords": [
-    "powernukkitx",
-    "pnx",
-    "minecraft",
-    "bedrock",
-    "server",
-    "cli"
+  "name": "pnx-suite",
+  "private": true,
+  "description": "PowerNukkitX monorepo — @powernukkitx/cli (npm) and the PowerNukkitX desktop app",
+  "workspaces": [
+    "packages/*"
   ],
   "license": "MIT",
-  "author": "AzaleeX",
-  "type": "module",
-  "main": "dist/cli.js",
-  "bin": {
-    "pnx": "dist/cli.js"
-  },
-  "files": [
-    "dist"
-  ],
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/PowerNukkitX/pnx-cli.git"
-  },
-  "bugs": {
-    "url": "https://github.com/PowerNukkitX/pnx-cli/issues"
-  },
-  "homepage": "https://github.com/PowerNukkitX/pnx-cli#readme",
   "engines": {
     "node": ">=20.12.0"
   },
   "scripts": {
-    "start": "node dist/cli.js",
-    "check": "find dist -name '*.js' -print0 | xargs -0 -n1 node --check",
-    "smoke": "node dist/cli.js --help"
-  },
-  "dependencies": {
-    "@clack/prompts": "^1.7.0",
-    "chalk": "^5.6.2",
-    "citty": "^0.2.2"
+    "build": "npm run build --workspace packages/cli",
+    "typecheck": "npm run typecheck --workspace packages/cli",
+    "smoke": "npm run smoke --workspace packages/cli",
+    "smoke:launcher": "npm run smoke:launcher --workspace packages/cli",
+    "cli:dev": "npm run start --workspace packages/cli",
+    "app:start": "npm run start --workspace packages/app",
+    "app:dist": "npm run dist --workspace packages/app",
+    "app:dist:linux": "npm run dist:linux --workspace packages/app",
+    "app:dist:mac": "npm run dist:mac --workspace packages/app",
+    "icons": "node packages/cli/scripts/make-icons.mjs"
   }
 }

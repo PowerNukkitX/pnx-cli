@@ -1,0 +1,55 @@
+{
+  "name": "@powernukkitx/cli",
+  "version": "1.4.0",
+  "description": "PowerNukkitX CLI — create and manage Minecraft Bedrock servers with a clean, modern interface",
+  "keywords": [
+    "powernukkitx",
+    "pnx",
+    "minecraft",
+    "bedrock",
+    "server",
+    "cli",
+    "powernukkit",
+    "mcbe",
+    "server-manager",
+    "backup",
+    "completion"
+  ],
+  "license": "MIT",
+  "author": "AzaleeX",
+  "type": "module",
+  "main": "dist/bin/pnx.js",
+  "bin": {
+    "pnx": "dist/bin/pnx.js",
+    "pnxcli": "dist/bin/pnxcli.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/PowerNukkitX/pnx-cli.git"
+  },
+  "bugs": {
+    "url": "https://github.com/PowerNukkitX/pnx-cli/issues"
+  },
+  "homepage": "https://github.com/PowerNukkitX/pnx-cli#readme",
+  "engines": {
+    "node": ">=20.12.0"
+  },
+  "scripts": {
+    "build": "node scripts/clean.js && tsc -p tsconfig.json",
+    "build:fast": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "start": "node dist/bin/pnx.js",
+    "smoke": "node dist/bin/pnx.js --version && node dist/bin/pnx.js --help",
+    "smoke:launcher": "node dist/bin/pnxcli.js --help",
+    "check": "npm run typecheck && node dist/bin/pnx.js --help"
+  },
+  "devDependencies": {
+    "@resvg/resvg-js": "^2.6.2",
+    "@types/node": "^24.10.9",
+    "png-to-ico": "^3.0.2",
+    "typescript": "^5.9.3"
+  }
+}

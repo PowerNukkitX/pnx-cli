@@ -1,0 +1,94 @@
+{
+    "name": "pnx-assistant",
+    "productName": "PowerNukkitX",
+    "version": "2.4.0",
+    "description": "PowerNukkitX desktop app for setting up and running a PowerNukkitX server, on this PC or on a VPS",
+    "author": "PowerNukkitX contributors",
+    "license": "LGPL-3.0",
+    "main": "src/main.cjs",
+    "private": true,
+    "scripts": {
+        "start": "electron .",
+        "dist": "electron-builder --win nsis portable",
+        "dist:linux": "electron-builder --linux AppImage",
+        "dist:mac": "electron-builder --mac dmg"
+    },
+    "dependencies": {
+        "electron-updater": "^6.8.9",
+        "ssh2": "^1.17.0"
+    },
+    "devDependencies": {
+        "electron": "38.8.6",
+        "electron-builder": "^26.0.0"
+    },
+    "build": {
+        "appId": "org.powernukkitx.assistant",
+        "productName": "PowerNukkitX",
+        "electronVersion": "38.8.6",
+        "directories": {
+            "output": "release"
+        },
+        "publish": {
+            "provider": "github",
+            "owner": "PowerNukkitX",
+            "repo": "pnx-cli",
+            "vPrefixedTagName": true,
+            "releaseType": "release"
+        },
+        "files": [
+            "src/**/*",
+            "renderer/**/*",
+            "icons/*"
+        ],
+        "extraResources": [
+            {
+                "from": "../cli/dist",
+                "to": "cli",
+                "filter": [
+                    "**/*"
+                ]
+            },
+            {
+                "from": "../cli/package.json",
+                "to": "cli/package.json"
+            }
+        ],
+        "win": {
+            "icon": "icons/icon.ico",
+            "target": [
+                {
+                    "target": "nsis",
+                    "arch": [
+                        "x64"
+                    ]
+                },
+                {
+                    "target": "portable",
+                    "arch": [
+                        "x64"
+                    ]
+                }
+            ]
+        },
+        "nsis": {
+            "oneClick": false,
+            "allowToChangeInstallationDirectory": true,
+            "createDesktopShortcut": true,
+            "shortcutName": "PowerNukkitX"
+        },
+        "linux": {
+            "icon": "icons",
+            "target": [
+                "AppImage"
+            ],
+            "category": "Utility"
+        },
+        "mac": {
+            "target": [
+                "dmg"
+            ],
+            "category": "public.app-category.utilities"
+        },
+        "npmRebuild": false
+    }
+}

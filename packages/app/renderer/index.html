@@ -1,0 +1,727 @@
+<!doctype html>
+<html lang="fr" data-accent="grass">
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="Content-Security-Policy"
+          content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'none'" />
+    <meta name="color-scheme" content="dark light" />
+    <title>PowerNukkitX</title>
+    <link rel="stylesheet" href="app.css" />
+</head>
+<body>
+<div id="app">
+
+    <!-- ── Sidebar: brand, server switcher, destinations, footer ── -->
+    <aside id="sidebar">
+        <div class="side-brand drag">
+            <button class="brand nodrag" id="brand-home" type="button" aria-label="PowerNukkitX">
+                <img class="brand-mark" src="../icons/icon-1024.png" alt="" draggable="false" />
+                <span class="brand-text">
+                    <span class="brand-name">PowerNukkitX</span>
+                </span>
+            </button>
+        </div>
+
+        <div class="switcher-wrap" id="switcher-anchor">
+            <button class="switcher" id="switcher" type="button" aria-haspopup="menu" aria-expanded="false">
+                <span class="switcher-dot" id="switcher-dot" aria-hidden="true"></span>
+                <span class="switcher-text">
+                    <span class="switcher-name" id="switcher-name">—</span>
+                    <span class="switcher-sub" id="switcher-sub"></span>
+                </span>
+                <i data-icon="chevrons-up-down" class="switcher-chev"></i>
+            </button>
+            <div class="menu" id="switcher-menu" role="menu" hidden></div>
+        </div>
+
+        <nav id="nav" aria-label="Navigation">
+            <span class="nav-marker" id="nav-marker" aria-hidden="true"></span>
+            <p class="nav-group" data-i18n="ui.nav.server"></p>
+            <button class="nav-item" data-view="overview" type="button"><i data-icon="layout-dashboard"></i><span data-i18n="ui.nav.overview"></span></button>
+            <button class="nav-item" data-view="console" type="button"><i data-icon="terminal"></i><span data-i18n="ui.nav.console"></span><span class="nav-live" id="nav-live" hidden></span></button>
+            <button class="nav-item" data-view="players" type="button"><i data-icon="users"></i><span data-i18n="ui.nav.players"></span><span class="nav-count" id="nav-players" hidden></span></button>
+            <button class="nav-item" data-view="plugins" type="button"><i data-icon="package"></i><span data-i18n="nav.plugins"></span><span class="nav-count" id="nav-plugin-updates" hidden></span></button>
+            <button class="nav-item" data-view="config" type="button"><i data-icon="sliders"></i><span data-i18n="nav.config"></span></button>
+            <button class="nav-item" data-view="backups" type="button"><i data-icon="archive"></i><span data-i18n="backups.title"></span></button>
+
+            <p class="nav-group" data-i18n="ui.nav.assistant"></p>
+            <button class="nav-item" data-view="servers" type="button"><i data-icon="server"></i><span data-i18n="servers.title"></span></button>
+            <button class="nav-item" data-view="create" type="button"><i data-icon="plus"></i><span data-i18n="nav.create"></span></button>
+            <button class="nav-item" data-view="guide" type="button"><i data-icon="book-open"></i><span data-i18n="ui.nav.guide"></span></button>
+            <button class="nav-item" data-view="settings" type="button"><i data-icon="settings"></i><span data-i18n="nav.settings"></span></button>
+        </nav>
+
+        <div class="side-foot">
+            <div class="update-card" id="update-card" hidden>
+                <span class="lui-hairline" data-tone="brand"></span>
+                <p class="update-title" id="update-title"></p>
+                <button class="btn btn-sm btn-primary" id="update-action" type="button"></button>
+            </div>
+            <div class="side-foot-row">
+                <div class="lang-wrap">
+                    <button class="btn btn-ghost btn-sm" id="side-lang" type="button" aria-haspopup="menu" aria-expanded="false" data-i18n-title="settings.lang"><i data-icon="globe"></i><span id="side-lang-code">FR</span></button>
+                    <div class="menu menu-up" id="lang-menu" role="menu" hidden></div>
+                </div>
+                <button class="btn btn-ghost btn-sm" id="side-theme" type="button" data-i18n-title="settings.theme"><i data-icon="moon"></i></button>
+                <span class="side-version mono" id="side-version">v—</span>
+            </div>
+        </div>
+    </aside>
+
+    <div id="main">
+        <!-- ── Topbar: the window's drag strip, the palette trigger, two facts ── -->
+        <header id="topbar" class="drag">
+            <button class="search-trigger nodrag" id="palette-btn" type="button">
+                <i data-icon="search"></i>
+                <span data-i18n="ui.palette.trigger"></span>
+                <kbd class="kbd">Ctrl K</kbd>
+            </button>
+            <div class="top-facts nodrag">
+                <button class="pill pill-neutral" id="pill-java" type="button"><span class="pill-dot"></span><span>Java…</span></button>
+                <button class="pill pill-neutral" id="pill-pnx" type="button"><span class="mono">PNX —</span></button>
+            </div>
+        </header>
+
+        <main id="stage">
+
+            <!-- ───────────── OVERVIEW ───────────── -->
+            <section class="view" id="view-overview" aria-labelledby="ov-title">
+                <div class="page" id="ov-page">
+                    <header class="page-head">
+                        <div class="page-titles">
+                            <h1 class="headline" id="ov-title">—</h1>
+                            <p class="page-meta" id="ov-meta"></p>
+                        </div>
+                        <div class="page-actions" id="ov-actions"></div>
+                    </header>
+
+                    <dl class="stat-row" id="ov-stats">
+                        <div class="stat"><dt data-i18n="ui.stat.state"></dt><dd><span class="stat-fig" id="st-state">—</span></dd></div>
+                        <div class="stat"><dt data-i18n="metrics.uptime"></dt><dd><span class="stat-fig" id="st-uptime">—</span></dd></div>
+                        <div class="stat"><dt data-i18n="metrics.players"></dt><dd><span class="stat-fig" id="st-players">—</span></dd></div>
+                        <div class="stat"><dt data-i18n="metrics.port"></dt><dd><span class="stat-fig" id="st-port">—</span></dd></div>
+                        <div class="stat"><dt data-i18n="manage.memory"></dt><dd><span class="stat-fig" id="st-memory">—</span></dd></div>
+                        <div class="stat"><dt data-i18n="ui.stat.issues"></dt><dd><span class="stat-fig" id="st-issues">0</span></dd></div>
+                    </dl>
+
+                    <div class="ov-grid">
+                        <article class="card ov-activity">
+                            <header class="card-head">
+                                <h2 class="card-title" data-i18n="dash.activity"></h2>
+                                <button class="btn btn-ghost btn-sm" data-go="console" type="button"><span data-i18n="ui.openConsole"></span><i data-icon="chevron-right" data-inline-end></i></button>
+                            </header>
+                            <div class="well log-well" id="ov-log"></div>
+                        </article>
+
+                        <article class="card card-lit ov-join">
+                            <span class="lui-hairline" data-tone="brand"></span>
+                            <header class="card-head">
+                                <h2 class="card-title" data-i18n="ui.join.title"></h2>
+                            </header>
+                            <p class="card-text" data-i18n="ui.join.text"></p>
+                            <div class="addr-list" id="ov-addrs"></div>
+                            <p class="card-note" data-i18n="ui.join.outside"></p>
+                        </article>
+
+                        <article class="card ov-health">
+                            <header class="card-head">
+                                <h2 class="card-title" data-i18n="ui.health.title"></h2>
+                                <button class="btn btn-ghost btn-icon btn-sm" id="ov-health-refresh" type="button" data-i18n-title="ui.refresh"><i data-icon="refresh"></i></button>
+                            </header>
+                            <ul class="checks" id="ov-checks"></ul>
+                        </article>
+                    </div>
+                </div>
+                <div class="page" id="ov-empty" hidden></div>
+            </section>
+
+            <!-- ───────────── CONSOLE ───────────── -->
+            <section class="view view-fill" id="view-console">
+                <div class="page page-fill">
+                    <header class="page-head">
+                        <div class="page-titles">
+                            <h1 class="headline" data-i18n="ui.nav.console"></h1>
+                            <p class="page-meta" id="con-meta"></p>
+                        </div>
+                        <div class="page-actions" id="con-actions"></div>
+                    </header>
+
+                    <div class="con-toolbar">
+                        <div class="seg" id="con-filter" role="group">
+                            <button class="seg-btn" data-filter="all" aria-pressed="true" type="button" data-i18n="console.filter.all"></button>
+                            <button class="seg-btn" data-filter="warn" aria-pressed="false" type="button"><span data-i18n="ui.filter.warn"></span> <span class="seg-count mono" id="con-count-warn">0</span></button>
+                            <button class="seg-btn" data-filter="err" aria-pressed="false" type="button"><span data-i18n="console.filter.err"></span> <span class="seg-count mono" id="con-count-err">0</span></button>
+                        </div>
+                        <label class="field-search sm">
+                            <i data-icon="search"></i>
+                            <input id="con-search" type="text" spellcheck="false" autocomplete="off" data-i18n-placeholder="ui.console.search" />
+                        </label>
+                        <span class="grow"></span>
+                        <button class="btn btn-ghost btn-sm" id="con-autoscroll" aria-pressed="true" type="button"><i data-icon="arrow-down"></i><span data-i18n="console.autoscroll"></span></button>
+                        <button class="btn btn-ghost btn-icon btn-sm" id="con-copy" type="button" data-i18n-title="console.copy"><i data-icon="copy"></i></button>
+                        <button class="btn btn-ghost btn-icon btn-sm" id="con-export" type="button" data-i18n-title="console.export"><i data-icon="download"></i></button>
+                        <button class="btn btn-ghost btn-icon btn-sm" id="con-clear" type="button" data-i18n-title="console.clear"><i data-icon="eraser"></i></button>
+                    </div>
+
+                    <div class="well console" id="console" tabindex="0" aria-live="off"></div>
+
+                    <div class="quick-cmds" id="quick-cmds"></div>
+                    <form class="cmd-row" id="cmd-form" autocomplete="off">
+                        <span class="cmd-prompt mono" aria-hidden="true">&gt;</span>
+                        <input class="cmd-input mono" id="cmd-input" type="text" spellcheck="false" data-i18n-placeholder="console.commandPlaceholder" aria-label="Command" list="cmd-suggest" />
+                        <datalist id="cmd-suggest"></datalist>
+                        <button class="btn btn-sm btn-glow" id="cmd-send" type="submit"><i data-icon="send"></i><span data-i18n="console.send"></span></button>
+                    </form>
+                </div>
+            </section>
+
+            <!-- ───────────── PLAYERS ───────────── -->
+            <section class="view" id="view-players">
+                <div class="page">
+                    <header class="page-head">
+                        <div class="page-titles">
+                            <h1 class="headline" data-i18n="ui.nav.players"></h1>
+                            <p class="page-meta" id="pl-meta"></p>
+                            <p class="page-desc" data-i18n="ui.players.desc"></p>
+                        </div>
+                        <div class="page-actions">
+                            <button class="btn btn-outline" id="pl-refresh" type="button"><i data-icon="refresh"></i><span data-i18n="ui.refresh"></span></button>
+                        </div>
+                    </header>
+                    <div class="pl-grid">
+                        <article class="card">
+                            <header class="card-head"><h2 class="card-title" data-i18n="ui.players.online"></h2><span class="chip mono" id="pl-count">0</span></header>
+                            <div class="rows" id="pl-list"></div>
+                        </article>
+                        <div class="stack">
+                            <article class="card">
+                                <header class="card-head"><h2 class="card-title" data-i18n="ui.players.manage"></h2></header>
+                                <form class="pl-form" id="pl-form" autocomplete="off">
+                                    <label class="field">
+                                        <span class="field-label" data-i18n="ui.players.name"></span>
+                                        <input class="input" id="pl-name" type="text" spellcheck="false" maxlength="32" />
+                                    </label>
+                                    <div class="pl-acts" id="pl-acts"></div>
+                                </form>
+                            </article>
+                            <article class="card">
+                                <header class="card-head"><h2 class="card-title" data-i18n="ui.players.say"></h2></header>
+                                <form class="inline-form" id="say-form" autocomplete="off">
+                                    <input class="input" id="say-input" type="text" maxlength="200" data-i18n-placeholder="ui.players.sayPlaceholder" />
+                                    <button class="btn btn-glow btn-sm" type="submit"><i data-icon="message"></i><span data-i18n="console.send"></span></button>
+                                </form>
+                            </article>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ───────────── PLUGINS ───────────── -->
+            <section class="view" id="view-plugins">
+                <div class="page">
+                    <header class="page-head">
+                        <div class="page-titles">
+                            <h1 class="headline" data-i18n="nav.plugins"></h1>
+                            <p class="page-meta" id="pg-meta"></p>
+                        </div>
+                        <div class="page-actions">
+                            <button class="btn btn-outline" id="pg-folder" type="button"><i data-icon="folder"></i><span data-i18n="ui.plugins.folder"></span></button>
+                        </div>
+                    </header>
+
+                    <div class="tabs" role="tablist" id="pg-tabs">
+                        <button class="tab" role="tab" data-tab="catalog" aria-selected="true" type="button"><span data-i18n="plugins.marketplace"></span></button>
+                        <button class="tab" role="tab" data-tab="installed" aria-selected="false" type="button"><span data-i18n="plugins.installed"></span><span class="tab-count mono" id="pg-count-installed">0</span></button>
+                        <span class="tab-ink" id="pg-ink" aria-hidden="true"></span>
+                    </div>
+
+                    <div class="tab-panel" id="pg-catalog">
+                        <div class="pg-toolbar">
+                            <label class="field-search glow">
+                                <i data-icon="search"></i>
+                                <input id="pg-search" type="search" spellcheck="false" autocomplete="off" data-i18n-placeholder="plugins.search.placeholder" />
+                            </label>
+                            <div class="seg" id="pg-sort" role="group">
+                                <button class="seg-btn" data-sort="stars" aria-pressed="true" type="button" data-i18n="ui.sort.popular"></button>
+                                <button class="seg-btn" data-sort="updated" aria-pressed="false" type="button" data-i18n="ui.sort.updated"></button>
+                                <button class="seg-btn" data-sort="newest" aria-pressed="false" type="button" data-i18n="ui.sort.newest"></button>
+                            </div>
+                        </div>
+                        <div class="plug-grid" id="pg-results"></div>
+                    </div>
+
+                    <div class="tab-panel" id="pg-installed" hidden>
+                        <div class="pg-toolbar">
+                            <p class="muted small" data-i18n="ui.plugins.installedNote"></p>
+                            <span class="grow"></span>
+                            <button class="btn btn-outline btn-sm" id="pg-update-all" type="button" hidden><i data-icon="arrow-up-circle"></i><span data-i18n="ui.plugins.updateAll"></span></button>
+                        </div>
+                        <div class="card card-flush"><div class="rows" id="pg-mine"></div></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ───────────── CONFIG ───────────── -->
+            <section class="view" id="view-config">
+                <div class="page">
+                    <header class="page-head">
+                        <div class="page-titles">
+                            <h1 class="headline" data-i18n="nav.config"></h1>
+                            <p class="page-meta" id="cfg-meta"></p>
+                            <p class="page-desc" data-i18n="config.sub"></p>
+                        </div>
+                        <div class="page-actions">
+                            <button class="btn btn-outline" id="cfg-open" type="button"><i data-icon="file-text"></i><span data-i18n="config.openFile"></span></button>
+                        </div>
+                    </header>
+                    <div id="cfg-empty" hidden></div>
+                    <div id="cfg-body" hidden>
+                        <div class="pg-toolbar">
+                            <label class="field-search">
+                                <i data-icon="search"></i>
+                                <input id="cfg-search" type="search" spellcheck="false" autocomplete="off" data-i18n-placeholder="config.search" />
+                            </label>
+                        </div>
+                        <h2 class="block-title" id="cfg-ess-title" data-i18n="ui.config.essentials"></h2>
+                        <div class="cfg-sections" id="cfg-essential"></div>
+                        <h2 class="block-title" id="cfg-adv-title" data-i18n="config.advanced.title"></h2>
+                        <div class="cfg-sections" id="cfg-advanced"></div>
+                        <p class="muted small cfg-none" id="cfg-none" data-i18n="settings.noResult" hidden></p>
+                    </div>
+                </div>
+                <div class="savebar" id="cfg-savebar" hidden>
+                    <span class="savebar-dot" aria-hidden="true"></span>
+                    <span id="cfg-dirty-text"></span>
+                    <span class="grow"></span>
+                    <button class="btn btn-ghost btn-sm" id="cfg-discard" type="button" data-i18n="modal.cancel"></button>
+                    <button class="btn btn-primary btn-sm" id="cfg-save" type="button"><i data-icon="save"></i><span data-i18n="config.save"></span></button>
+                </div>
+            </section>
+
+            <!-- ───────────── BACKUPS ───────────── -->
+            <section class="view" id="view-backups">
+                <div class="page">
+                    <header class="page-head">
+                        <div class="page-titles">
+                            <h1 class="headline" data-i18n="backups.title"></h1>
+                            <p class="page-meta" id="bk-meta"></p>
+                            <p class="page-desc" data-i18n="backups.note"></p>
+                        </div>
+                        <div class="page-actions">
+                            <button class="btn btn-outline" id="bk-folder" type="button"><i data-icon="folder"></i><span data-i18n="manage.open"></span></button>
+                            <button class="btn btn-primary" id="bk-create" type="button"><i data-icon="plus"></i><span data-i18n="backups.create"></span></button>
+                        </div>
+                    </header>
+                    <article class="card auto-card" id="bk-auto">
+                        <header class="card-head">
+                            <h2 class="card-title" data-i18n="ui.auto.title"></h2>
+                            <span class="chip" id="bk-auto-next"></span>
+                        </header>
+                        <div class="auto-grid">
+                            <label class="field">
+                                <span class="field-label" data-i18n="ui.auto.every"></span>
+                                <select class="select" id="auto-every"></select>
+                            </label>
+                            <label class="field">
+                                <span class="field-label" data-i18n="ui.auto.keep"></span>
+                                <select class="select" id="auto-keep"></select>
+                            </label>
+                            <div class="field">
+                                <span class="field-label" data-i18n="ui.auto.restart"></span>
+                                <div class="input-row">
+                                    <label class="switch"><input type="checkbox" id="auto-restart-on" /><i></i></label>
+                                    <input class="input mono auto-time" id="auto-restart-at" type="time" value="05:00" />
+                                </div>
+                            </div>
+                            <div class="field">
+                                <span class="field-label" data-i18n="ui.auto.warn"></span>
+                                <label class="switch"><input type="checkbox" id="auto-warn" checked /><i></i></label>
+                            </div>
+                        </div>
+                        <p class="card-note" id="bk-auto-note"></p>
+                    </article>
+                    <div id="bk-list"></div>
+                </div>
+            </section>
+
+            <!-- ───────────── SERVERS ───────────── -->
+            <section class="view" id="view-servers">
+                <div class="page">
+                    <header class="page-head">
+                        <div class="page-titles">
+                            <h1 class="headline" data-i18n="servers.title"></h1>
+                            <p class="page-desc" data-i18n="ui.servers.desc"></p>
+                        </div>
+                        <div class="page-actions">
+                            <button class="btn btn-glow" id="sv-add" type="button"><i data-icon="folder"></i><span data-i18n="ui.servers.addExisting"></span></button>
+                            <button class="btn btn-primary" data-go="create" type="button"><i data-icon="plus"></i><span data-i18n="nav.create"></span></button>
+                        </div>
+                    </header>
+                    <div class="server-grid" id="sv-grid"></div>
+                </div>
+            </section>
+
+            <!-- ───────────── CREATE ───────────── -->
+            <section class="view" id="view-create">
+                <div class="page">
+                    <header class="page-head">
+                        <div class="page-titles">
+                            <h1 class="headline" data-i18n="nav.create"></h1>
+                            <p class="page-desc" data-i18n="home.view.create.sub"></p>
+                        </div>
+                    </header>
+                    <div class="create-grid">
+                        <form class="create-form" id="create-form" autocomplete="off">
+
+                            <section class="card step-card">
+                                <header class="step-head"><span class="step-num">1</span><h2 class="step-title" data-i18n="ui.create.where"></h2></header>
+                                <div class="target-tiles" id="cr-target" role="group">
+                                    <button class="host-tile" data-target="local" aria-pressed="true" type="button">
+                                        <span class="tile-icon"><i data-icon="hard-drive"></i></span>
+                                        <span class="tile-body"><span class="tile-title" data-i18n="ui.create.local"></span><span class="tile-desc" data-i18n="ui.create.localHint"></span></span>
+                                        <span class="tile-radio"></span>
+                                    </button>
+                                    <button class="host-tile" data-target="remote" aria-pressed="false" type="button">
+                                        <span class="tile-icon"><i data-icon="globe"></i></span>
+                                        <span class="tile-body"><span class="tile-title" data-i18n="ui.create.remote"></span><span class="tile-desc" data-i18n="ui.create.remoteHint"></span></span>
+                                        <span class="tile-radio"></span>
+                                    </button>
+                                </div>
+                            </section>
+
+                            <section class="card step-card" id="cr-vps" hidden>
+                                <header class="step-head"><span class="step-num">2</span><h2 class="step-title" data-i18n="ui.create.stepConnect"></h2></header>
+                                <div class="form-grid">
+                                    <label class="field span-2">
+                                        <span class="field-label" data-i18n="ui.vps.host"></span>
+                                        <input class="input mono" id="vps-host" type="text" spellcheck="false" placeholder="203.0.113.10" />
+                                    </label>
+                                    <label class="field">
+                                        <span class="field-label" data-i18n="ui.vps.port"></span>
+                                        <input class="input mono" id="vps-port" type="number" min="1" max="65535" value="22" />
+                                    </label>
+                                    <label class="field span-2">
+                                        <span class="field-label" data-i18n="ui.vps.user"></span>
+                                        <input class="input mono" id="vps-user" type="text" spellcheck="false" value="root" />
+                                    </label>
+                                    <div class="field">
+                                        <span class="field-label" data-i18n="ui.vps.auth"></span>
+                                        <div class="seg seg-fill" id="vps-auth" role="group">
+                                            <button class="seg-btn" data-auth="password" aria-pressed="true" type="button" data-i18n="ui.vps.authPassword"></button>
+                                            <button class="seg-btn" data-auth="key" aria-pressed="false" type="button" data-i18n="ui.vps.authKey"></button>
+                                        </div>
+                                    </div>
+                                    <label class="field span-3" id="vps-password-field">
+                                        <span class="field-label" data-i18n="ui.vps.password"></span>
+                                        <input class="input" id="vps-password" type="password" autocomplete="off" />
+                                    </label>
+                                    <div class="field span-3" id="vps-key-field" hidden>
+                                        <span class="field-label" data-i18n="ui.vps.key"></span>
+                                        <div class="input-row">
+                                            <input class="input mono" id="vps-key" type="text" spellcheck="false" placeholder="~/.ssh/id_ed25519" />
+                                            <button class="btn btn-outline" id="vps-key-pick" type="button"><i data-icon="folder"></i><span data-i18n="create.dir.pick"></span></button>
+                                        </div>
+                                    </div>
+                                    <label class="field span-3" id="vps-passphrase-field" hidden>
+                                        <span class="field-label" data-i18n="ui.vps.passphrase"></span>
+                                        <input class="input" id="vps-passphrase" type="password" autocomplete="off" />
+                                    </label>
+                                    <label class="field span-3" id="vps-sudo-field" hidden>
+                                        <span class="field-label" data-i18n="ui.vps.sudo"></span>
+                                        <input class="input" id="vps-sudo" type="password" autocomplete="off" />
+                                        <span class="field-hint" data-i18n="ui.vps.sudoHint"></span>
+                                    </label>
+                                </div>
+                                <div class="vps-test">
+                                    <button class="btn btn-glow" id="vps-test" type="button"><i data-icon="wifi"></i><span data-i18n="ui.vps.test"></span></button>
+                                    <span class="field-hint"><i data-icon="shield"></i><span data-i18n="ui.vps.secure"></span></span>
+                                </div>
+                                <ul class="checks vps-checks" id="vps-checks" hidden></ul>
+                            </section>
+
+                            <section class="card step-card">
+                                <header class="step-head"><span class="step-num" data-step="server">2</span><h2 class="step-title" data-i18n="ui.create.stepServer"></h2></header>
+                                <label class="field">
+                                    <span class="field-label" data-i18n="servers.namePlaceholder"></span>
+                                    <input class="input" id="cr-name" type="text" maxlength="48" spellcheck="false" />
+                                </label>
+                                <div class="field" id="cr-dir-field">
+                                    <label class="field-label" for="cr-dir" data-i18n="create.dir.label"></label>
+                                    <div class="input-row">
+                                        <input class="input mono" id="cr-dir" type="text" spellcheck="false" />
+                                        <button class="btn btn-outline" id="cr-pick" type="button"><i data-icon="folder"></i><span data-i18n="create.dir.pick"></span></button>
+                                    </div>
+                                    <p class="field-hint" id="cr-dir-hint" data-i18n="ui.create.dirHint"></p>
+                                </div>
+                                <div class="field" id="cr-vpsdir-field" hidden>
+                                    <label class="field-label" for="vps-path" data-i18n="ui.vpsdir.label"></label>
+                                    <div class="input-row">
+                                        <input class="input mono" id="vps-path" type="text" spellcheck="false" placeholder="/opt/pnx/mon-serveur" />
+                                        <button class="btn btn-outline" id="vps-browse" type="button"><i data-icon="folder"></i><span data-i18n="create.dir.pick"></span></button>
+                                    </div>
+                                    <div class="path-presets" id="vps-presets"></div>
+                                    <p class="field-hint" id="vps-path-hint"></p>
+                                </div>
+                            </section>
+
+                            <section class="card step-card">
+                                <header class="step-head"><span class="step-num" data-step="build">3</span><h2 class="step-title" data-i18n="ui.create.stepBuild"></h2></header>
+                                <div class="field">
+                                    <span class="field-label" data-i18n="create.version.label"></span>
+                                    <div class="choice-list" id="cr-versions"></div>
+                                    <p class="field-hint" data-i18n="create.version.hint"></p>
+                                </div>
+                                <div class="field">
+                                    <span class="field-label" data-i18n="create.memory.label"></span>
+                                    <div class="choice-list" id="cr-memory" role="group"></div>
+                                    <p class="field-hint" id="cr-memory-hint"></p>
+                                </div>
+                            </section>
+                        </form>
+
+                        <aside class="create-side">
+                            <section class="card create-summary" id="cr-summary">
+                                <h2 class="card-title" data-i18n="ui.create.summary"></h2>
+                                <dl class="summary-list" id="cr-summary-list"></dl>
+                                <button class="btn btn-primary btn-lg btn-block" id="cr-submit" type="submit" form="create-form"><span id="cr-submit-label" data-i18n="create.cta"></span><i data-icon="chevron-right" data-inline-end></i></button>
+                                <p class="summary-note" id="cr-summary-note"></p>
+                            </section>
+                            <section class="card create-log" id="cr-log-card" hidden>
+                                <header class="card-head">
+                                    <h2 class="card-title" data-i18n="ui.create.log"></h2>
+                                    <span class="chip mono" id="cr-progress-chip" hidden>0 %</span>
+                                </header>
+                                <div class="progress" id="cr-progress" hidden><div class="progress-fill" id="cr-progress-fill"></div></div>
+                                <div class="well log-well" id="cr-log"></div>
+                                <div class="create-done" id="cr-done" hidden>
+                                    <p class="ok-line"><i data-icon="check"></i><span id="cr-done-line"></span></p>
+                                    <div class="btn-row">
+                                        <button class="btn btn-primary" id="cr-run" type="button"><i data-icon="play"></i><span data-i18n="create.result.run"></span></button>
+                                        <button class="btn btn-outline" id="cr-open" type="button"><i data-icon="folder"></i><span data-i18n="create.result.folder"></span></button>
+                                    </div>
+                                </div>
+                            </section>
+                        </aside>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ───────────── GUIDE ───────────── -->
+            <section class="view" id="view-guide">
+                <div class="page page-narrow">
+                    <header class="page-head">
+                        <div class="page-titles">
+                            <h1 class="headline" data-i18n="ui.nav.guide"></h1>
+                            <p class="page-desc" data-i18n="tuto.sub"></p>
+                        </div>
+                        <div class="page-actions">
+                            <button class="btn btn-outline" id="guide-replay" type="button"><i data-icon="rotate-ccw"></i><span data-i18n="onboard.help.again"></span></button>
+                        </div>
+                    </header>
+                    <div class="guide-progress">
+                        <div class="progress"><div class="progress-fill" id="guide-fill"></div></div>
+                        <span class="mono small muted" id="guide-count">0/7</span>
+                    </div>
+                    <ol class="guide" id="guide-steps"></ol>
+                    <div class="btn-row">
+                        <button class="btn btn-ghost btn-sm" id="guide-reset" type="button" data-i18n="tuto.reset" hidden></button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ───────────── SETTINGS ───────────── -->
+            <section class="view" id="view-settings">
+                <div class="page">
+                    <header class="page-head">
+                        <div class="page-titles">
+                            <h1 class="headline" data-i18n="nav.settings"></h1>
+                            <p class="page-desc" data-i18n="settings.sub"></p>
+                        </div>
+                    </header>
+                    <div class="set-wrap">
+                        <nav class="set-rail" id="set-rail" aria-label="Settings">
+                            <label class="field-search sm">
+                                <i data-icon="search"></i>
+                                <input id="set-search" type="search" spellcheck="false" autocomplete="off" data-i18n-placeholder="settings.search" />
+                            </label>
+                            <button class="rail-item" data-sec="general" type="button" data-i18n="settings.general"></button>
+                            <button class="rail-item" data-sec="appearance" type="button" data-i18n="settings.appearance"></button>
+                            <button class="rail-item" data-sec="server" type="button" data-i18n="ui.settings.server"></button>
+                            <button class="rail-item" data-sec="updates" type="button" data-i18n="settings.updates"></button>
+                            <button class="rail-item" data-sec="data" type="button" data-i18n="settings.data"></button>
+                            <button class="rail-item" data-sec="about" type="button" data-i18n="about.title"></button>
+                        </nav>
+                        <div class="set-body" id="set-body">
+                            <section class="set-card card" data-sec="general">
+                                <h2 class="card-title" data-i18n="settings.general"></h2>
+                                <div class="set-row">
+                                    <div class="set-copy"><span class="set-label" data-i18n="settings.lang"></span><span class="set-desc" data-i18n="settings.lang.desc"></span></div>
+                                    <select class="select" id="set-lang"></select>
+                                </div>
+                                <div class="set-row">
+                                    <div class="set-copy"><span class="set-label" data-i18n="settings.confirmQuit"></span><span class="set-desc" data-i18n="settings.confirmQuit.desc"></span></div>
+                                    <label class="switch"><input type="checkbox" id="set-confirm-quit" /><i></i></label>
+                                </div>
+                            </section>
+
+                            <section class="set-card card" data-sec="appearance">
+                                <h2 class="card-title" data-i18n="settings.appearance"></h2>
+                                <div class="set-row">
+                                    <div class="set-copy"><span class="set-label" data-i18n="settings.theme"></span><span class="set-desc" data-i18n="settings.theme.desc"></span></div>
+                                    <div class="seg" id="set-theme" role="group"></div>
+                                </div>
+                                <div class="set-row">
+                                    <div class="set-copy"><span class="set-label" data-i18n="ui.settings.accent"></span><span class="set-desc" data-i18n="ui.settings.accent.desc"></span></div>
+                                    <div class="swatches" id="set-accent" role="radiogroup"></div>
+                                </div>
+                                <div class="set-row">
+                                    <div class="set-copy"><span class="set-label" data-i18n="settings.density"></span><span class="set-desc" data-i18n="settings.density.desc"></span></div>
+                                    <div class="seg" id="set-density" role="group"></div>
+                                </div>
+                                <div class="set-row">
+                                    <div class="set-copy"><span class="set-label" data-i18n="settings.motion"></span><span class="set-desc" data-i18n="ui.settings.motion.desc"></span></div>
+                                    <label class="switch"><input type="checkbox" id="set-motion" /><i></i></label>
+                                </div>
+                            </section>
+
+                            <section class="set-card card" data-sec="server">
+                                <h2 class="card-title" data-i18n="ui.settings.server"></h2>
+                                <div class="set-row">
+                                    <div class="set-copy"><span class="set-label" data-i18n="ui.settings.memory"></span><span class="set-desc" data-i18n="ui.settings.memory.desc"></span></div>
+                                    <select class="select" id="set-memory"></select>
+                                </div>
+                                <div class="set-row">
+                                    <div class="set-copy"><span class="set-label" data-i18n="ui.settings.autoRestart"></span><span class="set-desc" data-i18n="ui.settings.autoRestart.desc"></span></div>
+                                    <label class="switch"><input type="checkbox" id="set-auto-restart" /><i></i></label>
+                                </div>
+                                <div class="set-row">
+                                    <div class="set-copy"><span class="set-label" data-i18n="ui.settings.notify"></span><span class="set-desc" data-i18n="ui.settings.notify.desc"></span></div>
+                                    <label class="switch"><input type="checkbox" id="set-notify" /><i></i></label>
+                                </div>
+                                <div class="set-row">
+                                    <div class="set-copy"><span class="set-label" data-i18n="ui.settings.notifyJoins"></span><span class="set-desc" data-i18n="ui.settings.notifyJoins.desc"></span></div>
+                                    <label class="switch"><input type="checkbox" id="set-notify-joins" /><i></i></label>
+                                </div>
+                            </section>
+
+                            <section class="set-card card" data-sec="updates">
+                                <h2 class="card-title" data-i18n="settings.updates"></h2>
+                                <div class="set-row">
+                                    <div class="set-copy"><span class="set-label" data-i18n="settings.updates.auto"></span><span class="set-desc" data-i18n="settings.updates.auto.desc"></span></div>
+                                    <label class="switch"><input type="checkbox" id="set-update-auto" /><i></i></label>
+                                </div>
+                                <div class="set-row">
+                                    <div class="set-copy"><span class="set-label" data-i18n="settings.updates.bg"></span><span class="set-desc" data-i18n="settings.updates.bg.desc"></span></div>
+                                    <label class="switch"><input type="checkbox" id="set-update-bg" /><i></i></label>
+                                </div>
+                                <div class="set-row">
+                                    <div class="set-copy"><span class="set-label" data-i18n="settings.updates.check"></span><span class="set-desc"><span data-i18n="settings.updates.current"></span> <span class="mono" id="set-app-version">—</span></span></div>
+                                    <button class="btn btn-outline btn-sm" id="set-update-check" type="button"><i data-icon="refresh"></i><span data-i18n="settings.updates.check.btn"></span></button>
+                                </div>
+                            </section>
+
+                            <section class="set-card card" data-sec="data">
+                                <h2 class="card-title" data-i18n="settings.data"></h2>
+                                <div class="set-row">
+                                    <div class="set-copy"><span class="set-label" data-i18n="settings.data.folder"></span><span class="set-desc" data-i18n="settings.data.folder.desc"></span></div>
+                                    <button class="btn btn-outline btn-sm" id="set-open-data" type="button"><i data-icon="folder"></i><span data-i18n="settings.data.folder.btn"></span></button>
+                                </div>
+                                <div class="set-row">
+                                    <div class="set-copy"><span class="set-label" data-i18n="settings.data.reset"></span><span class="set-desc" data-i18n="settings.data.reset.desc"></span></div>
+                                    <button class="btn btn-destructive btn-sm" id="set-reset" type="button" data-i18n="settings.data.reset.btn"></button>
+                                </div>
+                            </section>
+
+                            <section class="set-card card" data-sec="about">
+                                <h2 class="card-title" data-i18n="about.title"></h2>
+                                <div class="about">
+                                    <img src="../icons/icon-1024.png" alt="" width="56" height="56" draggable="false" />
+                                    <div>
+                                        <p class="about-name">PowerNukkitX</p>
+                                        <p class="mono small muted" id="about-versions">…</p>
+                                    </div>
+                                </div>
+                                <div class="btn-row" id="about-links"></div>
+                                <p class="muted small" data-i18n="about.legal"></p>
+                            </section>
+                            <p class="muted small" id="set-none" data-i18n="settings.noResult" hidden></p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+</div>
+
+<!-- ── overlays ── -->
+<div id="toasts" aria-live="polite"></div>
+
+<div class="veil" id="palette" hidden>
+    <div class="palette" role="dialog" aria-modal="true" aria-label="Command palette">
+        <label class="palette-input">
+            <i data-icon="search"></i>
+            <input id="palette-input" type="text" autocomplete="off" spellcheck="false" data-i18n-placeholder="palette.placeholder" />
+            <kbd class="kbd">Esc</kbd>
+        </label>
+        <div class="palette-list" id="palette-list" role="listbox"></div>
+    </div>
+</div>
+
+<div class="veil" id="modal" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+        <h2 class="modal-title" id="modal-title"></h2>
+        <p class="modal-text" id="modal-text"></p>
+        <input class="input" id="modal-input" type="text" autocomplete="off" spellcheck="false" />
+        <div class="btn-row end">
+            <button class="btn btn-ghost" id="modal-cancel" type="button" data-i18n="modal.cancel"></button>
+            <button class="btn btn-primary" id="modal-ok" type="button"></button>
+        </div>
+    </div>
+</div>
+
+<div class="veil" id="browse" hidden>
+    <div class="modal browse" role="dialog" aria-modal="true" aria-labelledby="browse-title">
+        <h2 class="modal-title" id="browse-title" data-i18n="ui.vpsdir.browseTitle"></h2>
+        <div class="browse-path">
+            <button class="btn btn-ghost btn-sm" id="browse-up" type="button"><i data-icon="arrow-up"></i></button>
+            <div class="crumbs mono" id="browse-crumbs"></div>
+        </div>
+        <ul class="browse-list" id="browse-list"></ul>
+        <div class="browse-target">
+            <span class="field-label" data-i18n="ui.vpsdir.willInstall"></span>
+            <code class="mono" id="browse-result"></code>
+        </div>
+        <div class="btn-row end">
+            <button class="btn btn-ghost" id="browse-cancel" type="button" data-i18n="modal.cancel"></button>
+            <button class="btn btn-primary" id="browse-ok" type="button" data-i18n="ui.vpsdir.choose"></button>
+        </div>
+    </div>
+</div>
+
+<div class="veil" id="onboard" hidden>
+    <div class="modal onboard" role="dialog" aria-modal="true" aria-labelledby="onboard-title">
+        <span class="lui-hairline" data-tone="brand"></span>
+        <img class="onboard-art" src="../icons/icon-1024.png" alt="" draggable="false" />
+        <h2 class="headline onboard-title" id="onboard-title"></h2>
+        <p class="modal-text" id="onboard-text"></p>
+        <div class="onboard-extra" id="onboard-extra"></div>
+        <div class="onboard-nav">
+            <span class="dots" id="onboard-dots"></span>
+            <span class="grow"></span>
+            <button class="btn btn-ghost" id="onboard-back" type="button" data-i18n="onboard.back"></button>
+            <button class="btn btn-ghost" id="onboard-skip" type="button" data-i18n="onboard.skip"></button>
+            <button class="btn btn-primary" id="onboard-next" type="button"></button>
+        </div>
+    </div>
+</div>
+
+<script src="i18n.js"></script>
+<script src="i18n-ui.js"></script>
+<script src="i18n-vps.js"></script>
+<script src="i18n-create.js"></script>
+<script src="i18n-auto.js"></script>
+<script src="icons.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
