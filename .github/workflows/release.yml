@@ -71,6 +71,7 @@ jobs:
             flag: --mac
     env:
       CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+      SIGNPATH_API_TOKEN: ${{ secrets.SIGNPATH_API_TOKEN }}
     steps:
       - uses: actions/checkout@v4
 
@@ -87,6 +88,42 @@ jobs:
       - name: Build the app
         working-directory: packages/app
         run: npx electron-builder ${{ matrix.flag }} --publish never
+
+      # Windows code signing through the SignPath Foundation (free for open
+      # source). Skipped until the SIGNPATH_API_TOKEN secret exists, so
+      # unsigned builds keep working meanwhile.
+      - name: Upload the unsigned Windows files for signing
+        id: unsigned
+        if: matrix.os == 'windows-latest' && env.SIGNPATH_API_TOKEN != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-unsigned
+          if-no-files-found: error
+          path: |
+            packages/app/release/PowerNukkitX-Setup-*.exe
+            packages/app/release/PowerNukkitX-*-portable.exe
+
+      - name: Sign with SignPath
+        if: matrix.os == 'windows-latest' && env.SIGNPATH_API_TOKEN != ''
+        uses: signpath/github-action-submit-signing-request@v1
+        with:
+          api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
+          organization-id: ${{ vars.SIGNPATH_ORGANIZATION_ID }}
+          project-slug: ${{ vars.SIGNPATH_PROJECT_SLUG || 'pnx-cli' }}
+          signing-policy-slug: ${{ vars.SIGNPATH_SIGNING_POLICY_SLUG || 'release-signing' }}
+          artifact-configuration-slug: ${{ vars.SIGNPATH_ARTIFACT_CONFIGURATION_SLUG || 'initial' }}
+          github-artifact-id: ${{ steps.unsigned.outputs.artifact-id }}
+          wait-for-completion: true
+          wait-for-completion-timeout-in-seconds: 3600
+          output-artifact-directory: packages/app/release/signed
+
+      - name: Use the signed files
+        if: matrix.os == 'windows-latest' && env.SIGNPATH_API_TOKEN != ''
+        shell: bash
+        run: |
+          cp -f packages/app/release/signed/*.exe packages/app/release/
+          rm -rf packages/app/release/signed
+          node .github/scripts/refresh-latest-yml.mjs packages/app/release
 
       - uses: actions/upload-artifact@v4
         with:

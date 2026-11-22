@@ -132,6 +132,8 @@ if (args.component === 'app') {
     out.push('');
     out.push('Installed copies update themselves. The server needs [Java 25](https://adoptium.net/temurin/releases/?version=25).');
     out.push('');
+    out.push('Windows builds are signed through the [SignPath Foundation](https://signpath.org) ([code signing policy](https://github.com/' + repo + '#code-signing-policy)).');
+    out.push('');
 } else {
     out.push('### 📥 Install', '');
     out.push('```bash');

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  SignPath artifact configuration for the Windows build of the desktop app.
+  Paste it into the SignPath project (Artifact configurations > initial).
+  The artifact is the zip GitHub Actions uploads: the NSIS installer and
+  the portable exe, both signed with Authenticode.
+-->
+<artifact-configuration xmlns="http://signpath.io/artifact-configuration/v1">
+  <zip-file>
+    <pe-file path="PowerNukkitX-Setup-*.exe" max-matches="1">
+      <authenticode-sign />
+    </pe-file>
+    <pe-file path="PowerNukkitX-*-portable.exe" max-matches="1">
+      <authenticode-sign />
+    </pe-file>
+  </zip-file>
+</artifact-configuration>
