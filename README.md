@@ -19,16 +19,18 @@
   <a href="https://powernukkitx.org/docs/cli"><b>Documentation</b></a> ·
   <a href="#quick-start">Quick start</a> ·
   <a href="#commands">Commands</a> ·
-  <a href="https://github.com/PowerNukkitX/pnx-app">Desktop app</a> ·
-  <a href="CONTRIBUTING.md">Contributing</a>
+  <a href="#scripting">Scripting</a> ·
+  <a href="#development">Development</a> ·
+  <a href="https://github.com/PowerNukkitX/pnx-app">Desktop app</a>
 </p>
 
 ---
 
-**`pnx`** turns a PowerNukkitX server into a one-command job. It downloads the
-right jar, writes the start scripts, picks the Java flags, installs reviewed
-plugins, takes backups and tells you the address your friends join, all
-from a terminal that is pleasant to use and safe to script.
+**`pnx`** runs a [PowerNukkitX](https://powernukkitx.org) Minecraft Bedrock
+server from one command. It downloads the right jar, writes the start scripts,
+picks the Java flags, installs reviewed plugins, takes backups and tells you the
+address your friends join. It is pleasant to use in a terminal and safe to use
+in scripts.
 
 ```text
 ┌   pnx  init  create a new server
@@ -67,8 +69,8 @@ npm install -g @powernukkitx/cli
 pnx                                     # the interactive dashboard
 ```
 
-`pnx start` reads like `next dev`: the addresses to join, one spinner while the
-world loads, then the moment players can connect.
+`pnx start` shows the addresses to join, one spinner while the world loads,
+then tells you when players can connect:
 
 ```text
   ◆ PowerNukkitX 3.0.6
@@ -80,88 +82,131 @@ world loads, then the moment players can connect.
   Type a server command here · Ctrl+C or `pnx stop` saves and stops
 ```
 
+The package installs two commands: `pnx`, the full tool, and `pnxcli`, a
+guided launcher that only creates a server and offers to start it.
+
 ## Why pnx
 
 |  |  |
 | :-- | :-- |
-| **Step by step** | Every command draws its story on one rail: questions, numbered steps with timings, a card with what to do next. |
-| **A real dashboard** | `pnx` alone opens a menu that shows which server, whether it runs, its version and the address to join. |
-| **Knows your server** | Tab completion for bash, zsh, fish and PowerShell completes commands, options, `pnx.yml` keys and backup names. |
+| **Step by step** | Every command shows its progress on one rail: questions, numbered steps with timings, then a card with what to do next. |
+| **A real dashboard** | `pnx` on its own opens a menu with the current server, whether it runs, its version and the address to join. |
+| **Knows your server** | Tab completion for bash, zsh, fish and PowerShell covers commands, options, `pnx.yml` keys and backup names. |
 | **Safe by default** | `stop` saves the world first, `backup restore` takes a safety copy first, `config set` keeps every comment. |
-| **Made for scripts** | Non-zero exit codes on failure, `--json` on every read, `NO_COLOR` / `FORCE_COLOR`, no prompts without a terminal. |
-| **Zero dependencies** | Nothing to audit at runtime; `npx` starts fast. |
+| **Made for scripts** | Non-zero exit codes on failure, `--json` on every read, no prompts without a terminal. |
+| **Zero dependencies** | Nothing to audit at runtime, and `npx` starts fast. |
 
 ## Commands
 
+**Server**
+
 | | |
 | :-- | :-- |
-| `pnx init [dir]` | Create a server (`-y` takes every default) |
-| `pnx start` / `stop` | Run it in the foreground; save and stop it from any terminal |
-| `pnx status` | Is it up, since when, and the address players join |
+| `pnx init [dir]` | Create a server: PowerNukkitX and its start scripts (`-y` takes every default) |
+| `pnx start` | Run it in the foreground (Ctrl+C saves and stops it) |
+| `pnx stop` | Save the world and stop it, from any terminal |
+| `pnx status` | Whether it runs, since when, and the address players join |
 | `pnx cmd <command>` | Type on the running server's console (no RCON needed) |
-| `pnx logs` | Read and follow the log |
-| `pnx config [get\|set]` | Show `pnx.yml`, or read / change one value by its key |
-| `pnx plugin install\|search\|update\|remove` | The PowerNukkitX plugin marketplace |
-| `pnx backup [list\|restore\|prune]` | Back up, browse, restore (with a safety copy), keep the newest *n* |
-| `pnx update` | The newest PowerNukkitX, the old jar kept as `.old` |
-| `pnx doctor` | Java, memory, disk and the configured port, checked |
+| `pnx console` | A console over RCON (needs RCON enabled) |
+| `pnx logs` | Read the log, and follow it |
+| `pnx config [get\|set]` | Show `pnx.yml`, or read or change one value by its key |
 | `pnx open [config\|logs\|plugins]` | Open the folder in your file manager or editor |
+| `pnx use` | Pick the server every command works on |
+
+**Plugins**, from the PowerNukkitX hub (reviewed releases only, checked against their SHA-256)
+
+| | |
+| :-- | :-- |
+| `pnx plugin list` / `search` / `info` | Browse the marketplace |
+| `pnx plugin install` / `update` / `remove` | Manage the `plugins/` folder |
+| `pnx plugin installed` | What is installed |
+
+**Maintenance**
+
+| | |
+| :-- | :-- |
+| `pnx update` | The newest PowerNukkitX, the old jar kept as `.old` |
+| `pnx backup [list\|restore\|prune]` | Back up, browse, restore (with a safety copy), keep the newest *n* |
+| `pnx doctor` | Check Java, memory, disk and the configured port |
+| `pnx info` | The server, its version and this machine |
+| `pnx link` | Pair the server with a hub dashboard |
 | `pnx completion` | Turn on Tab completion |
 
+Short forms work too: `pnx install <name>`, `pnx search <word>`, `pnx uninstall <name>`.
 Every command has `--help`, and the [documentation](https://powernukkitx.org/docs/cli) covers each one.
 
-## PowerNukkitX desktop app
+## Scripting
 
-The same engine, in a desktop window: **PowerNukkitX** (Electron,
-Windows / Linux / macOS) drives the very functions `pnx` uses. It lives in its
-own repository, [PowerNukkitX/pnx-app](https://github.com/PowerNukkitX/pnx-app),
-and bundles the CLI built from this one. Downloads are on its
-[latest release](https://github.com/PowerNukkitX/pnx-app/releases/latest).
+| | |
+| :-- | :-- |
+| `--json` | Machine-readable output, one JSON document per command |
+| `--no-color`, `NO_COLOR=1` | Plain text (`--color` or `FORCE_COLOR=1` force colour on) |
+| `--debug`, `PNX_DEBUG=1` | Full stack trace under an error |
+| `PNX_ASCII=1` | ASCII instead of Unicode symbols |
+| `PNX_HOME` | Where `pnx` keeps its state (default `~/.pnx-cli`) |
+| `PNX_NO_UPDATE_CHECK=1` | Skip the once-a-day check for a newer `pnx` |
 
-## Repository
+Without a terminal, `pnx` never prompts, and any failure ends with a non-zero
+exit code.
+
+`~/.pnx-cli` holds the default server, the release cache and the hub token. The
+[desktop app](https://github.com/PowerNukkitX/pnx-app) reads the same folder,
+so it finds the servers you made with `pnx`.
+
+## Desktop app
+
+Prefer a window? **[PowerNukkitX](https://github.com/PowerNukkitX/pnx-app)**
+(Windows, Linux, macOS) bundles this CLI and adds a live console, a players
+panel, a visual `pnx.yml` editor and servers on a VPS over SSH. Downloads are on
+its [latest release](https://github.com/PowerNukkitX/pnx-app/releases/latest).
+
+## Development
 
 ```
-packages/cli/   @powernukkitx/cli - the pnx and pnxcli commands (TypeScript)
+packages/cli/   @powernukkitx/cli: the pnx and pnxcli commands (TypeScript)
 assets/         README banners (rebuilt by packages/cli/scripts/make-banner.mjs)
 ```
 
 ```bash
 npm install
-npm run build          # compile the CLI
+npm run build          # compile to packages/cli/dist
 npm run cli:dev        # pnx --help, from source
 npm run typecheck
+npm run smoke          # smoke test the built CLI
 ```
+
+To work on the desktop app as well, clone
+[pnx-app](https://github.com/PowerNukkitX/pnx-app) next to this repository: it
+loads `../pnx-cli/packages/cli/dist`. `npm run icons` regenerates its icons.
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) before opening a pull request.
 
 ### Releasing
 
 Bump `version` in `packages/cli/package.json` and push to `master`. The
 [Release workflow](.github/workflows/release.yml) checks, builds and publishes
-the CLI to npm and creates the GitHub release `cli-vX.Y.Z` with an English
-changelog written from the commits
-([Conventional Commits](https://www.conventionalcommits.org): `feat:`, `fix:`…,
+the CLI to npm, then creates the GitHub release `cli-vX.Y.Z`. Its English
+changelog is written from the commits
+([Conventional Commits](https://www.conventionalcommits.org): `feat:`, `fix:`…;
 bullet lines in the body become sub-items).
 
-The `app-vX.Y.Z` releases here are mirrors published by
-[PowerNukkitX/pnx-app](https://github.com/PowerNukkitX/pnx-app), so desktop
-app copies up to 2.4.0 (which update from this repository) move over.
-
-Runtime state lives in `~/.pnx-cli` (or `PNX_HOME`): the default server, the
-release cache, the hub token and the desktop app's preferences.
+The `app-vX.Y.Z` releases here are copies published by pnx-app. Desktop app
+copies up to 2.4.0 update from this repository, and these releases move them
+over to pnx-app.
 
 ## Privacy
 
-This program will not transfer any information to other networked systems
-unless specifically requested by the user or the person installing or
-operating it.
+`pnx` does not send any information to other systems unless the user, or
+whoever installs or runs it, asks it to.
 
-What it does contact, and why:
+What it contacts, and why:
 
 - `powernukkitx.org`: the PowerNukkitX release list, the plugin hub (search,
   install, update) and, only if you link an account, your hub token.
 - `github.com`, `api.github.com`, `raw.githubusercontent.com`: downloading
   PowerNukkitX.
 - `api.adoptium.net`, `adoptium.net`: finding a Java runtime when you ask for one.
-- `registry.npmjs.org`: the CLI's once-a-day check for a newer version
+- `registry.npmjs.org`: the once-a-day check for a newer version
   (`PNX_NO_UPDATE_CHECK=1` turns it off).
 
 No analytics, telemetry or crash reports are collected.
