@@ -1,12 +1,11 @@
 #!/usr/bin/env node
 /*
- * Writes the release notes of one component (the desktop app or the CLI)
- * from the git history, in Markdown.
+ * Writes the release notes of @powernukkitx/cli from the git history, in Markdown.
  *
- *   node .github/scripts/changelog.mjs --component app --version 2.4.0 > notes.md
+ *   node .github/scripts/changelog.mjs --version 1.4.0 > notes.md
  *
- * Commits are read since the component's previous tag (app-v* or cli-v*),
- * limited to the folders that ship in it, and grouped by their Conventional
+ * Commits are read since the previous cli-v* tag, limited to packages/cli,
+ * and grouped by their Conventional
  * Commits type. Bullet lines in a commit body become sub-items, so a commit
  * that explains itself shows up in full.
  */
@@ -19,23 +18,9 @@ const args = Object.fromEntries(
     }, []),
 );
 
-const COMPONENTS = {
-    app: {
-        name: 'PowerNukkitX desktop app',
-        prefix: 'app-v',
-        // the app bundles the compiled CLI, so CLI changes ship in it too
-        paths: ['packages/app', 'packages/cli/src'],
-    },
-    cli: {
-        name: '@powernukkitx/cli',
-        prefix: 'cli-v',
-        paths: ['packages/cli'],
-    },
-};
-
-const component = COMPONENTS[args.component];
-if (!component || !args.version) {
-    console.error('usage: changelog.mjs --component app|cli --version x.y.z [--repo owner/name] [--head ref]');
+const component = { name: '@powernukkitx/cli', prefix: 'cli-v', paths: ['packages/cli'] };
+if (!args.version) {
+    console.error('usage: changelog.mjs --version x.y.z [--repo owner/name] [--head ref]');
     process.exit(2);
 }
 const repo = args.repo ?? process.env.GITHUB_REPOSITORY ?? 'PowerNukkitX/pnx-cli';
@@ -119,22 +104,7 @@ for (const [key, title] of SECTIONS) {
     out.push(`### ${title}`, '', ...list, '');
 }
 
-if (args.component === 'app') {
-    const base = `https://github.com/${repo}/releases/download/${tag}`;
-    const v = args.version;
-    out.push('### 📥 Downloads', '');
-    out.push('| System | File |');
-    out.push('| :-- | :-- |');
-    out.push(`| Windows (installer) | [PowerNukkitX-Setup-${v}.exe](${base}/PowerNukkitX-Setup-${v}.exe) |`);
-    out.push(`| Windows (portable) | [PowerNukkitX-${v}-portable.exe](${base}/PowerNukkitX-${v}-portable.exe) |`);
-    out.push(`| Linux (AppImage) | [PowerNukkitX-${v}-x86_64.AppImage](${base}/PowerNukkitX-${v}-x86_64.AppImage) |`);
-    out.push(`| macOS (Apple silicon) | [PowerNukkitX-${v}-arm64.dmg](${base}/PowerNukkitX-${v}-arm64.dmg) |`);
-    out.push('');
-    out.push('Installed copies update themselves. The server needs [Java 25](https://adoptium.net/temurin/releases/?version=25).');
-    out.push('');
-    out.push('Windows builds are signed through the [SignPath Foundation](https://signpath.org) ([code signing policy](https://github.com/' + repo + '#code-signing-policy)).');
-    out.push('');
-} else {
+{
     out.push('### 📥 Install', '');
     out.push('```bash');
     out.push(`npm install -g @powernukkitx/cli@${args.version}`);

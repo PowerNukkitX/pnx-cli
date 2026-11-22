@@ -1,7 +1,7 @@
 {
   "name": "pnx-suite",
   "private": true,
-  "description": "PowerNukkitX monorepo — @powernukkitx/cli (npm) and the PowerNukkitX desktop app",
+  "description": "PowerNukkitX CLI monorepo — @powernukkitx/cli (npm). The desktop app lives in PowerNukkitX/pnx-app",
   "workspaces": [
     "packages/*"
   ],
@@ -15,10 +15,6 @@
     "smoke": "npm run smoke --workspace packages/cli",
     "smoke:launcher": "npm run smoke:launcher --workspace packages/cli",
     "cli:dev": "npm run start --workspace packages/cli",
-    "app:start": "npm run start --workspace packages/app",
-    "app:dist": "npm run dist --workspace packages/app",
-    "app:dist:linux": "npm run dist:linux --workspace packages/app",
-    "app:dist:mac": "npm run dist:mac --workspace packages/app",
     "icons": "node packages/cli/scripts/make-icons.mjs"
   }
 }

@@ -19,7 +19,7 @@
   <a href="https://powernukkitx.org/docs/cli"><b>Documentation</b></a> ·
   <a href="#quick-start">Quick start</a> ·
   <a href="#commands">Commands</a> ·
-  <a href="#powernukkitx-desktop-app">Desktop app</a> ·
+  <a href="https://github.com/PowerNukkitX/pnx-app">Desktop app</a> ·
   <a href="CONTRIBUTING.md">Contributing</a>
 </p>
 
@@ -112,38 +112,21 @@ Every command has `--help`, and the [documentation](https://powernukkitx.org/doc
 
 ## PowerNukkitX desktop app
 
-The same engine, in a desktop window. **PowerNukkitX** (Electron,
-Windows / Linux / macOS) drives the very functions `pnx` uses: a multi-server
-registry, a live console with search and quick commands, a players panel, the
-plugin marketplace, a visual `pnx.yml` editor, backups and restore, in-place
-core updates and crash auto-restart, in five languages.
-
-### Download
-
-Get the installer for your system from the
-[latest release](https://github.com/PowerNukkitX/pnx-cli/releases/latest):
-`PowerNukkitX-Setup-x.y.z.exe` (Windows), `PowerNukkitX-x.y.z-x86_64.AppImage`
-(Linux) or `PowerNukkitX-x.y.z-arm64.dmg` (macOS). Installed copies update
-themselves.
-
-The Windows builds are signed through the [SignPath Foundation](https://signpath.org)
-(see the [code signing policy](#code-signing-policy)).
-
-```bash
-npm run app:start       # dev window
-npm run app:dist        # Windows installer (app:dist:linux, app:dist:mac)
-```
+The same engine, in a desktop window: **PowerNukkitX** (Electron,
+Windows / Linux / macOS) drives the very functions `pnx` uses. It lives in its
+own repository, [PowerNukkitX/pnx-app](https://github.com/PowerNukkitX/pnx-app),
+and bundles the CLI built from this one. Downloads are on its
+[latest release](https://github.com/PowerNukkitX/pnx-app/releases/latest).
 
 ## Repository
 
 ```
 packages/cli/   @powernukkitx/cli - the pnx and pnxcli commands (TypeScript)
-packages/app/   PowerNukkitX - the desktop app (Electron)
 assets/         README banners (rebuilt by packages/cli/scripts/make-banner.mjs)
 ```
 
 ```bash
-npm install            # both workspaces
+npm install
 npm run build          # compile the CLI
 npm run cli:dev        # pnx --help, from source
 npm run typecheck
@@ -151,30 +134,19 @@ npm run typecheck
 
 ### Releasing
 
-Bump `version` in `packages/app/package.json` and/or `packages/cli/package.json`
-and push to `master`. The [Release workflow](.github/workflows/release.yml)
-builds the app for Windows, Linux and macOS, publishes the CLI to npm, and
-creates the GitHub releases (`app-vX.Y.Z`, `cli-vX.Y.Z`) with an English
+Bump `version` in `packages/cli/package.json` and push to `master`. The
+[Release workflow](.github/workflows/release.yml) checks, builds and publishes
+the CLI to npm and creates the GitHub release `cli-vX.Y.Z` with an English
 changelog written from the commits
 ([Conventional Commits](https://www.conventionalcommits.org): `feat:`, `fix:`…,
 bullet lines in the body become sub-items).
 
+The `app-vX.Y.Z` releases here are mirrors published by
+[PowerNukkitX/pnx-app](https://github.com/PowerNukkitX/pnx-app), so desktop
+app copies up to 2.4.0 (which update from this repository) move over.
+
 Runtime state lives in `~/.pnx-cli` (or `PNX_HOME`): the default server, the
 release cache, the hub token and the desktop app's preferences.
-
-## Code signing policy
-
-Free code signing for the Windows builds is provided by
-[SignPath.io](https://about.signpath.io), with a certificate by the
-[SignPath Foundation](https://signpath.org).
-
-- Every signed file is built from this repository's source by the
-  [Release workflow](.github/workflows/release.yml) on GitHub Actions; nothing
-  built on a personal machine is signed.
-- Committers and reviewers: the [PowerNukkitX organization members](https://github.com/orgs/PowerNukkitX/people)
-  with write access to this repository.
-- Approvers: [AzaleeX](https://github.com/AzaleeX). Each signing request is
-  approved by hand before the release is published.
 
 ## Privacy
 
@@ -187,14 +159,10 @@ What it does contact, and why:
 - `powernukkitx.org`: the PowerNukkitX release list, the plugin hub (search,
   install, update) and, only if you link an account, your hub token.
 - `github.com`, `api.github.com`, `raw.githubusercontent.com`: downloading
-  PowerNukkitX and, for the desktop app, checking for and downloading its own
-  updates (can be turned off in its settings).
+  PowerNukkitX.
 - `api.adoptium.net`, `adoptium.net`: finding a Java runtime when you ask for one.
 - `registry.npmjs.org`: the CLI's once-a-day check for a newer version
   (`PNX_NO_UPDATE_CHECK=1` turns it off).
-- Servers on a VPS: the SSH host, user and key or password you enter, used only
-  to reach that machine. Saved passwords are encrypted with the operating
-  system's keychain.
 
 No analytics, telemetry or crash reports are collected.
 

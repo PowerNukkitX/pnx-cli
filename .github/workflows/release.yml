@@ -1,14 +1,14 @@
 # Releases on a version bump.
 #
-# Push a new "version" in packages/app/package.json or packages/cli/package.json
-# to master and this workflow does the rest:
-#   app  ->  builds Windows, Linux and macOS, writes the English changelog from
-#            the commits, publishes the GitHub release "app-vX.Y.Z" (the one the
-#            installed apps update from)
-#   cli  ->  checks, builds and publishes @powernukkitx/cli to npm, then the
-#            GitHub release "cli-vX.Y.Z" with its changelog
+# Push a new "version" in packages/cli/package.json to master and this workflow
+# checks, builds and publishes @powernukkitx/cli to npm, then the GitHub release
+# "cli-vX.Y.Z" with its changelog.
 # A version whose tag already exists is skipped, so re-runs are harmless.
-# Needs the NPM_TOKEN secret for the CLI; the app only needs GITHUB_TOKEN.
+# Needs the NPM_TOKEN secret.
+#
+# The desktop app lives in PowerNukkitX/pnx-app. Its release workflow mirrors
+# each app release here as "app-vX.Y.Z" so copies up to 2.4.0, which update
+# from this repository, move over.
 
 name: Release
 
@@ -16,7 +16,6 @@ on:
   push:
     branches: [master]
     paths:
-      - packages/app/package.json
       - packages/cli/package.json
       - .github/workflows/release.yml
   workflow_dispatch:
@@ -30,11 +29,9 @@ permissions:
 
 jobs:
   detect:
-    name: Detect new versions
+    name: Detect a new version
     runs-on: ubuntu-latest
     outputs:
-      app_version: ${{ steps.v.outputs.app_version }}
-      app_new: ${{ steps.v.outputs.app_new }}
       cli_version: ${{ steps.v.outputs.cli_version }}
       cli_new: ${{ steps.v.outputs.cli_new }}
     steps:
@@ -43,128 +40,12 @@ jobs:
           fetch-depth: 0
 
       - id: v
-        name: Compare package versions with tags
+        name: Compare the package version with the tags
         run: |
-          app=$(node -p "require('./packages/app/package.json').version")
           cli=$(node -p "require('./packages/cli/package.json').version")
-          echo "app_version=$app" >> "$GITHUB_OUTPUT"
           echo "cli_version=$cli" >> "$GITHUB_OUTPUT"
-          if git rev-parse -q --verify "refs/tags/app-v$app" >/dev/null; then echo "app_new=false" >> "$GITHUB_OUTPUT"; else echo "app_new=true" >> "$GITHUB_OUTPUT"; fi
           if git rev-parse -q --verify "refs/tags/cli-v$cli" >/dev/null; then echo "cli_new=false" >> "$GITHUB_OUTPUT"; else echo "cli_new=true" >> "$GITHUB_OUTPUT"; fi
-          echo "app $app (new: $(git rev-parse -q --verify refs/tags/app-v$app >/dev/null && echo no || echo yes))"
           echo "cli $cli (new: $(git rev-parse -q --verify refs/tags/cli-v$cli >/dev/null && echo no || echo yes))"
-
-  app-build:
-    name: Build app (${{ matrix.os }})
-    needs: detect
-    if: needs.detect.outputs.app_new == 'true'
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: true
-      matrix:
-        include:
-          - os: windows-latest
-            flag: --win
-          - os: ubuntu-latest
-            flag: --linux
-          - os: macos-latest
-            flag: --mac
-    env:
-      CSC_IDENTITY_AUTO_DISCOVERY: 'false'
-      SIGNPATH_API_TOKEN: ${{ secrets.SIGNPATH_API_TOKEN }}
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-
-      - name: Install dependencies
-        run: npm install
-
-      - name: Build the bundled CLI
-        run: npm run build --workspace packages/cli
-
-      - name: Build the app
-        working-directory: packages/app
-        run: npx electron-builder ${{ matrix.flag }} --publish never
-
-      # Windows code signing through the SignPath Foundation (free for open
-      # source). Skipped until the SIGNPATH_API_TOKEN secret exists, so
-      # unsigned builds keep working meanwhile.
-      - name: Upload the unsigned Windows files for signing
-        id: unsigned
-        if: matrix.os == 'windows-latest' && env.SIGNPATH_API_TOKEN != ''
-        uses: actions/upload-artifact@v4
-        with:
-          name: windows-unsigned
-          if-no-files-found: error
-          path: |
-            packages/app/release/PowerNukkitX-Setup-*.exe
-            packages/app/release/PowerNukkitX-*-portable.exe
-
-      - name: Sign with SignPath
-        if: matrix.os == 'windows-latest' && env.SIGNPATH_API_TOKEN != ''
-        uses: signpath/github-action-submit-signing-request@v1
-        with:
-          api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
-          organization-id: ${{ vars.SIGNPATH_ORGANIZATION_ID }}
-          project-slug: ${{ vars.SIGNPATH_PROJECT_SLUG || 'pnx-cli' }}
-          signing-policy-slug: ${{ vars.SIGNPATH_SIGNING_POLICY_SLUG || 'release-signing' }}
-          artifact-configuration-slug: ${{ vars.SIGNPATH_ARTIFACT_CONFIGURATION_SLUG || 'initial' }}
-          github-artifact-id: ${{ steps.unsigned.outputs.artifact-id }}
-          wait-for-completion: true
-          wait-for-completion-timeout-in-seconds: 3600
-          output-artifact-directory: packages/app/release/signed
-
-      - name: Use the signed files
-        if: matrix.os == 'windows-latest' && env.SIGNPATH_API_TOKEN != ''
-        shell: bash
-        run: |
-          cp -f packages/app/release/signed/*.exe packages/app/release/
-          rm -rf packages/app/release/signed
-          node .github/scripts/refresh-latest-yml.mjs packages/app/release
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: app-${{ matrix.os }}
-          if-no-files-found: error
-          path: |
-            packages/app/release/*.exe
-            packages/app/release/*.blockmap
-            packages/app/release/*.AppImage
-            packages/app/release/*.dmg
-            packages/app/release/*.zip
-            packages/app/release/latest*.yml
-
-  app-release:
-    name: Publish app release
-    needs: [detect, app-build]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - uses: actions/download-artifact@v4
-        with:
-          path: dist
-          merge-multiple: true
-
-      - name: Write the changelog
-        run: node .github/scripts/changelog.mjs --component app --version "${{ needs.detect.outputs.app_version }}" > notes.md
-
-      - name: Create the release
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          v="${{ needs.detect.outputs.app_version }}"
-          ls -la dist
-          gh release create "app-v$v" dist/* \
-            --target "$GITHUB_SHA" \
-            --title "PowerNukkitX $v" \
-            --notes-file notes.md \
-            --latest
 
   cli-release:
     name: Publish CLI
@@ -207,14 +88,15 @@ jobs:
           npm publish --workspace packages/cli --access public
 
       - name: Write the changelog
-        run: node .github/scripts/changelog.mjs --component cli --version "${{ needs.detect.outputs.cli_version }}" > notes.md
+        run: node .github/scripts/changelog.mjs --version "${{ needs.detect.outputs.cli_version }}" > notes.md
 
       - name: Create the release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           v="${{ needs.detect.outputs.cli_version }}"
-          # never "latest": the desktop app updates from the latest release
+          # never "latest": desktop app copies up to 2.4.0 update from the latest
+          # release here, which is the app-v* mirror published by PowerNukkitX/pnx-app
           gh release create "cli-v$v" \
             --target "$GITHUB_SHA" \
             --title "@powernukkitx/cli $v" \

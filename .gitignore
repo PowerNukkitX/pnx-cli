@@ -1,7 +1,7 @@
 # dependencies
 node_modules/
 
-# build output (regenerated on every build, vendored into the app at package time)
+# build output (regenerated on every build, vendored into PowerNukkitX/pnx-app at package time)
 dist/
 release/
 
@@ -24,12 +24,7 @@ coverage/
 .vscode/
 .DS_Store
 
-# electron-builder unpacked payloads
-packages/app/release/linux-unpacked/
-packages/app/release/mac/
-
-# local scratch: test server, packed snapshots, UI backups
+# local scratch: test server, packed snapshots
 packages/cli/pnx-server/
 _backup-*/
 _backup-*.tgz
-packages/app/_app3.*
