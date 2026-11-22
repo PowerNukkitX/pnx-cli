@@ -1,0 +1,185 @@
+# Releases on a version bump.
+#
+# Push a new "version" in packages/app/package.json or packages/cli/package.json
+# to master and this workflow does the rest:
+#   app  ->  builds Windows, Linux and macOS, writes the English changelog from
+#            the commits, publishes the GitHub release "app-vX.Y.Z" (the one the
+#            installed apps update from)
+#   cli  ->  checks, builds and publishes @powernukkitx/cli to npm, then the
+#            GitHub release "cli-vX.Y.Z" with its changelog
+# A version whose tag already exists is skipped, so re-runs are harmless.
+# Needs the NPM_TOKEN secret for the CLI; the app only needs GITHUB_TOKEN.
+
+name: Release
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - packages/app/package.json
+      - packages/cli/package.json
+      - .github/workflows/release.yml
+  workflow_dispatch:
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  detect:
+    name: Detect new versions
+    runs-on: ubuntu-latest
+    outputs:
+      app_version: ${{ steps.v.outputs.app_version }}
+      app_new: ${{ steps.v.outputs.app_new }}
+      cli_version: ${{ steps.v.outputs.cli_version }}
+      cli_new: ${{ steps.v.outputs.cli_new }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - id: v
+        name: Compare package versions with tags
+        run: |
+          app=$(node -p "require('./packages/app/package.json').version")
+          cli=$(node -p "require('./packages/cli/package.json').version")
+          echo "app_version=$app" >> "$GITHUB_OUTPUT"
+          echo "cli_version=$cli" >> "$GITHUB_OUTPUT"
+          if git rev-parse -q --verify "refs/tags/app-v$app" >/dev/null; then echo "app_new=false" >> "$GITHUB_OUTPUT"; else echo "app_new=true" >> "$GITHUB_OUTPUT"; fi
+          if git rev-parse -q --verify "refs/tags/cli-v$cli" >/dev/null; then echo "cli_new=false" >> "$GITHUB_OUTPUT"; else echo "cli_new=true" >> "$GITHUB_OUTPUT"; fi
+          echo "app $app (new: $(git rev-parse -q --verify refs/tags/app-v$app >/dev/null && echo no || echo yes))"
+          echo "cli $cli (new: $(git rev-parse -q --verify refs/tags/cli-v$cli >/dev/null && echo no || echo yes))"
+
+  app-build:
+    name: Build app (${{ matrix.os }})
+    needs: detect
+    if: needs.detect.outputs.app_new == 'true'
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          - os: windows-latest
+            flag: --win
+          - os: ubuntu-latest
+            flag: --linux
+          - os: macos-latest
+            flag: --mac
+    env:
+      CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build the bundled CLI
+        run: npm run build --workspace packages/cli
+
+      - name: Build the app
+        working-directory: packages/app
+        run: npx electron-builder ${{ matrix.flag }} --publish never
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: app-${{ matrix.os }}
+          if-no-files-found: error
+          path: |
+            packages/app/release/*.exe
+            packages/app/release/*.blockmap
+            packages/app/release/*.AppImage
+            packages/app/release/*.dmg
+            packages/app/release/*.zip
+            packages/app/release/latest*.yml
+
+  app-release:
+    name: Publish app release
+    needs: [detect, app-build]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+
+      - name: Write the changelog
+        run: node .github/scripts/changelog.mjs --component app --version "${{ needs.detect.outputs.app_version }}" > notes.md
+
+      - name: Create the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          v="${{ needs.detect.outputs.app_version }}"
+          ls -la dist
+          gh release create "app-v$v" dist/* \
+            --target "$GITHUB_SHA" \
+            --title "PowerNukkitX $v" \
+            --notes-file notes.md \
+            --latest
+
+  cli-release:
+    name: Publish CLI
+    needs: detect
+    if: needs.detect.outputs.cli_new == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          registry-url: https://registry.npmjs.org
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Typecheck, build, smoke test
+        run: |
+          npm run typecheck --workspace packages/cli
+          npm run build --workspace packages/cli
+          npm run smoke --workspace packages/cli
+          npm run smoke:launcher --workspace packages/cli
+
+      - name: Publish to npm
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          v="${{ needs.detect.outputs.cli_version }}"
+          if [ "$(npm view "@powernukkitx/cli@$v" version 2>/dev/null)" = "$v" ]; then
+            echo "@powernukkitx/cli@$v is already on npm, skipping"
+            exit 0
+          fi
+          if [ -z "$NODE_AUTH_TOKEN" ]; then
+            echo "::error::The NPM_TOKEN secret is missing (Settings > Secrets and variables > Actions)."
+            exit 1
+          fi
+          npm publish --workspace packages/cli --access public
+
+      - name: Write the changelog
+        run: node .github/scripts/changelog.mjs --component cli --version "${{ needs.detect.outputs.cli_version }}" > notes.md
+
+      - name: Create the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          v="${{ needs.detect.outputs.cli_version }}"
+          # never "latest": the desktop app updates from the latest release
+          gh release create "cli-v$v" \
+            --target "$GITHUB_SHA" \
+            --title "@powernukkitx/cli $v" \
+            --notes-file notes.md \
+            --latest=false

@@ -74,20 +74,27 @@
             "oneClick": false,
             "allowToChangeInstallationDirectory": true,
             "createDesktopShortcut": true,
-            "shortcutName": "PowerNukkitX"
+            "shortcutName": "PowerNukkitX",
+            "artifactName": "${productName}-Setup-${version}.${ext}"
+        },
+        "portable": {
+            "artifactName": "${productName}-${version}-portable.${ext}"
         },
         "linux": {
             "icon": "icons",
             "target": [
                 "AppImage"
             ],
-            "category": "Utility"
+            "category": "Utility",
+            "artifactName": "${productName}-${version}-${arch}.${ext}"
         },
         "mac": {
             "target": [
-                "dmg"
+                "dmg",
+                "zip"
             ],
-            "category": "public.app-category.utilities"
+            "category": "public.app-category.utilities",
+            "artifactName": "${productName}-${version}-${arch}.${ext}"
         },
         "npmRebuild": false
     }

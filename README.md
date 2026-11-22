@@ -138,6 +138,16 @@ npm run cli:dev        # pnx --help, from source
 npm run typecheck
 ```
 
+### Releasing
+
+Bump `version` in `packages/app/package.json` and/or `packages/cli/package.json`
+and push to `master`. The [Release workflow](.github/workflows/release.yml)
+builds the app for Windows, Linux and macOS, publishes the CLI to npm, and
+creates the GitHub releases (`app-vX.Y.Z`, `cli-vX.Y.Z`) with an English
+changelog written from the commits
+([Conventional Commits](https://www.conventionalcommits.org): `feat:`, `fix:`…,
+bullet lines in the body become sub-items).
+
 Runtime state lives in `~/.pnx-cli` (or `PNX_HOME`): the default server, the
 release cache, the hub token and the desktop app's preferences.
 
